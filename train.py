@@ -10,12 +10,11 @@ import numpy as np
 
 from deconvnet import DeconvNet
 from fcn import FCN
+from dataset import VOCSegmentationDataset
 
 def train():
-    dataset_train = Cityscapes('./data/cityscapes', mode='fine', split='train', target_type='semantic')
-    img, smnt = dataset_train[0]
-
-    print(img)
+    datasets = VOCSegmentationDataset('./data/VOCdevkit/VOC2012')
+    dataloader = DataLoader(dataset=datasets[0], batch_size=32, shuffle=True)
 
     os.makedirs('./model', exist_ok=True)
 
