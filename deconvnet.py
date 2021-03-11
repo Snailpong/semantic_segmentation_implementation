@@ -5,9 +5,9 @@ from torch.nn import functional as F
 class ConvLayer1(nn.Module):
     def __init__(self, channel_input, channel_output):
         self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
-        self.batch1 = nn.BatchNorm2d(chanel_output)
+        self.batch1 = nn.BatchNorm2d(channel_output)
         self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
-        self.batch2 = nn.BatchNorm2d(chanel_output)
+        self.batch2 = nn.BatchNorm2d(channel_output)
         self.pool = nn.MaxPool2d(2, return_indices=True)
         self.relu = nn.ReLU()
 
@@ -24,11 +24,11 @@ class ConvLayer1(nn.Module):
 class ConvLayer2(nn.Module):
     def __init__(self, channel_input, channel_output):
         self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
-        self.batch1 = nn.BatchNorm2d(chanel_output)
+        self.batch1 = nn.BatchNorm2d(channel_output)
         self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
-        self.batch2 = nn.BatchNorm2d(chanel_output)
+        self.batch2 = nn.BatchNorm2d(channel_output)
         self.conv3 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
-        self.batch3 = nn.BatchNorm2d(chanel_output)
+        self.batch3 = nn.BatchNorm2d(channel_output)
         self.pool = nn.MaxPool2d(2, return_indices=True)
         self.relu = nn.ReLU()
 
@@ -51,7 +51,7 @@ class DeconvLayer1(nn.Module):
         self.deconv1 = nn.ConvTranspose2d(channel_input, channel_input, 3, padding=1)
         self.batch1 = nn.BatchNorm2d(channel_input)
         self.deconv2 = nn.ConvTranspose2d(channel_input, channel_output, 3, padding=1)
-        self.batch2 = nn.BatchNorm2d(chanel_output)
+        self.batch2 = nn.BatchNorm2d(channel_output)
         self.relu = nn.ReLU()
 
     def forward(self, x, indicate):
@@ -73,7 +73,7 @@ class DeconvLayer2(nn.Module):
         self.deconv2 = nn.ConvTranspose2d(channel_input, channel_input, 3, padding=1)
         self.batch2 = nn.BatchNorm2d(channel_input)
         self.deconv3 = nn.ConvTranspose2d(channel_input, channel_output, 3, padding=1)
-        self.batch3 = nn.BatchNorm2d(chanel_output)
+        self.batch3 = nn.BatchNorm2d(channel_output)
         self.relu = nn.ReLU()
 
     def forward(self, x):

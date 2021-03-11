@@ -4,41 +4,52 @@ from torch.nn import functional as F
 
 class ConvLayer1(nn.Module):
   def __init__(self, channel_input, channel_output):
-    super.__init__()
-    self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding='same', activation='relu')
-    self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding='same', activation='relu')
+    super(ConvLayer1, self).__init__()
+    self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
+    self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
+    self.relu = nn.ReLU()
     self.pool = nn.MaxPool2d(2)
 
   def forword(self, x):
     x = self.conv1(x)
+    x = self.relu()
     x = self.conv2(x)
+    x = self.relu()
     return self.pool(x)
 
 
 class ConvLayer2(nn.Module):
   def __init__(self, channel_input, channel_output):
-    super.__init__()
-    self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding='same', activation='relu')
-    self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding='same', activation='relu')
-    self.conv3 = nn.Conv2d(channel_output, channel_output, 3, padding='same', activation='relu')
+    super(ConvLayer2, self).__init__()
+    self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
+    self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
+    self.conv3 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
+    self.relu = nn.ReLU()
     self.pool = nn.MaxPool2d(2)
     
   def forword(self, x):
     x = self.conv1(x)
+    x = self.relu()
     x = self.conv2(x)
+    x = self.relu()
     x = self.conv3(x)
+    x = self.relu()
     return self.pool(x)
 
   
 class ConvLayer3(nn.Module):
   def __init__(self, n_class):
-    self.conv1 = nn.Conv2d(512, 4096, 7, activation='relu')
-    self.conv2 = nn.Conv2d(4096, 4096, 1, activation='relu')
+    super(ConvLayer3, self).__init__()
+    self.conv1 = nn.Conv2d(512, 4096, 7)
+    self.conv2 = nn.Conv2d(4096, 4096, 1)
     self.conv3 = nn.Conv2d(4096, n_class, 1)
+    self.relu = nn.ReLU()
 
   def forward(self, x):
     x = self.conv1(x)
+    x = self.relu()
     x = self.conv2(x)
+    x = self.relu()
     x = self.conv3(x)
     return x
   
@@ -47,7 +58,7 @@ class ConvLayer3(nn.Module):
 
 class FCN(nn.Module):
   def __init__(self, n_class):
-    super.__init__()
+    super(FCN, self).__init__()
     self.layer1 = ConvLayer1(3, 64)
     self.layer2 = ConvLayer1(64, 128)
     self.layer3 = ConvLayer2(128, 256)

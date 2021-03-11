@@ -12,8 +12,10 @@ from deconvnet import DeconvNet
 from fcn import FCN
 from dataset import VOCSegmentationDataset
 
+NUM_CLASSES = 21
+
 def train():
-    datasets = VOCSegmentationDataset('./data/VOCdevkit/VOC2012')
+    datasets = VOCSegmentationDataset(os.path.join(os.getcwd(), 'data', 'VOCdevkit', 'VOC2012'))
     dataloader = DataLoader(dataset=datasets[0], batch_size=32, shuffle=True)
 
     os.makedirs('./model', exist_ok=True)
