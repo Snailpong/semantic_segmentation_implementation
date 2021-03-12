@@ -4,6 +4,7 @@ from torch.nn import functional as F
 
 class ConvLayer1(nn.Module):
     def __init__(self, channel_input, channel_output):
+        super(ConvLayer1, self).__init__()
         self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
         self.batch1 = nn.BatchNorm2d(channel_output)
         self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
@@ -23,6 +24,7 @@ class ConvLayer1(nn.Module):
 
 class ConvLayer2(nn.Module):
     def __init__(self, channel_input, channel_output):
+        super(ConvLayer2, self).__init__()
         self.conv1 = nn.Conv2d(channel_input, channel_output, 3, padding=1)
         self.batch1 = nn.BatchNorm2d(channel_output)
         self.conv2 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
@@ -47,6 +49,7 @@ class ConvLayer2(nn.Module):
       
 class DeconvLayer1(nn.Module):
     def __init__(self, channel_input, channel_output):
+        super(DeconvLayer1, self).__init__()
         self.unpool = nn.MaxUnpool2d(2)
         self.deconv1 = nn.ConvTranspose2d(channel_input, channel_input, 3, padding=1)
         self.batch1 = nn.BatchNorm2d(channel_input)
@@ -65,8 +68,8 @@ class DeconvLayer1(nn.Module):
 
 
 class DeconvLayer2(nn.Module):
-    def __init__(self, channel_input, channel_output, indicate):
-        self.indicate = indicate
+    def __init__(self, channel_input, channel_output):
+        super(DeconvLayer2, self).__init__()
         self.unpool = nn.MaxUnpool2d(2)
         self.deconv1 = nn.ConvTranspose2d(channel_input, channel_input, 3, padding=1)
         self.batch1 = nn.BatchNorm2d(channel_input)
@@ -76,7 +79,7 @@ class DeconvLayer2(nn.Module):
         self.batch3 = nn.BatchNorm2d(channel_output)
         self.relu = nn.ReLU()
 
-    def forward(self, x):
+    def forward(self, x, indicate):
         x = self.unpool(x, indicate)
         x = self.deconv1(x)
         x = self.batch1(x)
@@ -91,6 +94,7 @@ class DeconvLayer2(nn.Module):
       
 class FCLayer(nn.Module):
     def __init__(self):
+        super(FCLayer, self).__init__()
         self.fc1 = nn.Conv2d(512, 4096, 7, padding=0)
         self.batch1 = nn.BatchNorm2d(4096)
         self.fc2 = nn.Conv2d(4096, 4096, 1, padding=0)
@@ -115,6 +119,7 @@ class FCLayer(nn.Module):
 
 class DeconvNet(nn.Module):
     def __init__(self, n_class):
+        super(DeconvNet, self).__init__()
         self.convLayer1 = ConvLayer1(3, 64)
         self.convLayer2 = ConvLayer1(64, 128)
         self.convLayer3 = ConvLayer2(128, 256)
