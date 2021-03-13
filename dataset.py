@@ -13,7 +13,6 @@ class VOCSegmentationDataset(DataLoader):
         self.files_list = os.listdir(os.path.join(dataset_dir, 'SegmentationClassAug'))
 
         self.image_list = []
-        self.seg_mask_list = []
         self.seg_hot_list = []
 
         print('Data Loading...')
@@ -29,7 +28,6 @@ class VOCSegmentationDataset(DataLoader):
 
             self.image_list.append(image_array)
             seg_original = np.array(PIL.Image.open(os.path.join(dataset_dir, 'SegmentationClassAug', file_name)))
-            self.seg_mask_list.append(1 - (seg_original == 255))
             self.seg_hot_list.append(seg_original)
             idx += 1
 
@@ -40,9 +38,8 @@ class VOCSegmentationDataset(DataLoader):
     def __getitem__(self, index):
         crop = RandomCrop(self.image_list[index].shape[:2], (224, 224))
         image_item = crop.crop_forward(self.image_list[index])
-        seg_mask_item = np.tile(crop.crop_forward(self.seg_mask_list[index])[..., np.newaxis], NUM_CLASSES)
         seg_hot_item = crop.crop_forward(self.seg_hot_list[index])
-        return image_item, seg_mask_item, seg_hot_item
+        return image_item, seg_hot_item
 
     def __len__(self):
         return 1000

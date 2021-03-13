@@ -10,11 +10,11 @@ class ConvLayer1(nn.Module):
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool2d(2)
 
-    def forword(self, x):
+    def forward(self, x):
         x = self.conv1(x)
-        x = self.relu()
+        x = self.relu(x)
         x = self.conv2(x)
-        x = self.relu()
+        x = self.relu(x)
         return self.pool(x)
 
 
@@ -26,30 +26,30 @@ class ConvLayer2(nn.Module):
         self.conv3 = nn.Conv2d(channel_output, channel_output, 3, padding=1)
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool2d(2)
-    
-    def forword(self, x):
+
+    def forward(self, x):
         x = self.conv1(x)
-        x = self.relu()
+        x = self.relu(x)
         x = self.conv2(x)
-        x = self.relu()
+        x = self.relu(x)
         x = self.conv3(x)
-        x = self.relu()
+        x - self.relu(x)
         return self.pool(x)
 
   
 class ConvLayer3(nn.Module):
     def __init__(self, n_class):
         super(ConvLayer3, self).__init__()
-        self.conv1 = nn.Conv2d(512, 4096, 7)
+        self.conv1 = nn.Conv2d(512, 4096, 7, padding=3)
         self.conv2 = nn.Conv2d(4096, 4096, 1)
         self.conv3 = nn.Conv2d(4096, n_class, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         x = self.conv1(x)
-        x = self.relu()
+        x = self.relu(x)
         x = self.conv2(x)
-        x = self.relu()
+        x = self.relu(x)
         x = self.conv3(x)
         return x
   
@@ -78,10 +78,10 @@ class FCN(nn.Module):
         x5 = self.layer5(x4)
         x6 = self.layer6(x5)
 
-        x6_upsampled = F.upsample(x6, scale_factor=2, mode='bilinear')
-        fcn_16s = self.conv16s(x5) + x6_upsampled
-        fcn_16s_upsampled = F.upsample(fcn_16s, scale_factor=2, mode='bilinear')
-        fcn_8s = self.conv8s(x4) + fcn_16s_upsampled
+        x6_upsampled = F.interpolate(x6, scale_factor=2, mode='bilinear')
+        fcn_16s = self.conv16s(x4) + x6_upsampled
+        fcn_16s_upsampled = F.interpolate(fcn_16s, scale_factor=2, mode='bilinear')
+        fcn_8s = self.conv8s(x3) + fcn_16s_upsampled
 
-        return F.upsample(fcn_8s, scale_factor=8, mode='bilinear')
+        return F.interpolate(fcn_8s, scale_factor=8, mode='bilinear')
     
