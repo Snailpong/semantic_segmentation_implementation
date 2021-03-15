@@ -1,2 +1,4 @@
 data/*
+model/*
+result/*
 __pycache__

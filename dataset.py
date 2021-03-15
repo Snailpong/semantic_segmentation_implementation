@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 import os
-import PIL
+from PIL import Image
 import torchvision.transforms as transfroms
 import numpy as np
 from tqdm import tqdm
@@ -20,20 +20,25 @@ class VOCSegmentationDataset(DataLoader):
         idx = 0
 
         for file_name in tqdm(self.files_list):
-            file_name_jpg = os.path.join(dataset_dir, 'JPEGImages', file_name.split('.')[0]) + '.jpg'
+            idx += 1
 
-            image_array = np.array(PIL.Image.open(file_name_jpg))
+            file_name_jpg = os.path.join(dataset_dir, 'JPEGImages', file_name.split('.')[0]) + '.jpg'
+            file_name_seg = os.path.join(dataset_dir, 'SegmentationClassAug', file_name)
+
+            if not (os.path.isfile(file_name_jpg) and os.path.isfile(file_name_seg)):
+                continue
+
+            image_array = np.array(Image.open(file_name_jpg)) / 255.0
             if np.min(image_array.shape[:2]) < 224:
                 continue
 
             self.image_list.append(image_array)
-            seg_original = np.array(PIL.Image.open(os.path.join(dataset_dir, 'SegmentationClassAug', file_name)))
+            seg_original = np.array(Image.open(file_name_seg))
             self.seg_hot_list.append(seg_original)
-            idx += 1
+            
 
-            if idx == 1000:
+            if idx == 1500:
                 break
-
 
     def __getitem__(self, index):
         crop = RandomCrop(self.image_list[index].shape[:2], (224, 224))
@@ -42,5 +47,5 @@ class VOCSegmentationDataset(DataLoader):
         return image_item, seg_hot_item
 
     def __len__(self):
-        return 1000
+        return 1500
         # return len(self.files_list)

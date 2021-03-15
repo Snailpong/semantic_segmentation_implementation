@@ -13,7 +13,7 @@ from fcn import FCN
 from dataset import VOCSegmentationDataset
 
 NUM_CLASSES = 21
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 
 def train():
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -29,25 +29,25 @@ def train():
 
     os.makedirs('./model', exist_ok=True)
 
-    model = FCN(21)
+    model = DeconvNet(21)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    #seg_criterion = nn.NLLLoss2d()
-    seg_criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+    # seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
+    seg_criterion = nn.CrossEntropyLoss(ignore_index=255)
     # cls_criterion = nn.BCEWithLogitsLoss()
 
     cur_iters = 0
 
-    for epoch in range(20):
+    for epoch in range(30):
         model.train()
 
         pbar = tqdm(range(len(dataloader)))
-        pbar.set_description('Epoch {}'.format(epoch))
+        pbar.set_description('Epoch {}'.format(epoch+1))
 
-        for (images, hots) in dataloader:
+        total_loss = 0.
+
+        for idx, (images, hots) in enumerate(dataloader):
             cur_iters += 1
-
-            # print(images.shape, hots.shape)
 
             images = images.to(device, dtype=torch.float32).permute(0, 3, 1, 2)
             hots = hots.to(device, dtype=torch.long)
@@ -58,10 +58,12 @@ def train():
             loss = seg_criterion(outputs, hots)
             loss.backward()
             optimizer.step()
-            pbar.set_postfix_str('loss: ' + str(np.around(loss.detach().cpu().numpy(), 4)))
+
+            total_loss += loss.detach().cpu().numpy()
+            pbar.set_postfix_str('loss: ' + str(np.around(total_loss / (idx + 1), 4)))
             pbar.update()
 
-        torch.save(model.state_dict(), os.path.join(os.getcwd(), 'models'))
+        torch.save(model.state_dict(), os.path.join(os.getcwd(), 'model', '{}.pth'.format(model.__class__.__name__)))
 
 
 if __name__ == '__main__':
