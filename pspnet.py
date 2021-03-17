@@ -1,0 +1,66 @@
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+class ResNet18(nn.Module):
+    FEAT = 512
+    FEAT_4 = 256
+
+    def __init__(self):
+        super(ResNet18, self).__init__()
+
+    def forward(self, x):
+        return x
+
+
+class PSPModule(nn.Module):
+    def __init__(self):
+        super(PSPModule, self).__init__()
+        self.stages = nn.ModuleList([self.make_stage(size) for size in (1, 2, 3, 6)])
+        self.conv = nn.Conv2d(ResNet18.FEAT * 5, ResNet18.FEAT, 1)
+        self.relu = nn.ReLU()
+
+    def make_stage(self, size):
+        pool = nn.AdaptiveAvgPool2d(output_size=(size, size))
+        conv = nn.Conv2d(ResNet18.FEAT, ResNet18.FEAT, 1, bias=False)
+        return nn.Sequential(pool, conv)
+    
+    def forward(self, x):
+        h, w = x.size(2), x.size(3)
+        stages = [F.interpolate(stage(x), size=(h, w), mode='bilinear') for stage in self.stages] + [x]
+        x = torch.cat(stages, dim=1)
+        x = self.conv(x)
+        x = self.relu(x)
+        return x
+
+
+class UpsampleModule(nn.Module):
+    def __init__(self, channel_input, channel_output):
+        super(UpsampleModule, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(channel_input, channel_output, 3, padding=1),
+            nn.BatchNorm2d(channel_output),
+            nn.PReLU())
+        
+    def forward(self, x):
+        x = F.interpolate(x, scale_factor=2, mode='bilinear')
+        x = conv(x)
+        return x
+
+
+class PSPNet(nn.Module):
+    def __init__(self, n_class):
+        super(PSPNet, self).__init__()
+        self.bottleneck = ResNet18()
+        self.pspModule = PSPModule()
+        self.upsample = nn.Sequential(UpsampleModule(ResNet18.FEAT, 256), UpsampleModule(256, 64), UpsampleModule(64, 64))
+        self.final = nn.Sequential(nn.Conv2d(64, n_class, 1), nn.LogSoftmax())
+        self.classifier = nn.Sequential(nn.Linear(ResNet18.FEAT_4, 256), nn.ReLU(), nn.Linear(256, n_class))
+
+    def forward(self, x):
+        x, x_aux = self.bottleneck(x)
+        x = self.pspModule(x)
+        x = self.upsample(x)
+        x = self.final(x)
+        x_aux = self.classifier(x_aux)
+        return x, x_aux
