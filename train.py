@@ -10,6 +10,7 @@ import numpy as np
 
 from deconvnet import DeconvNet
 from fcn import FCN
+from pspnet import PSPNet
 from dataset import VOCSegmentationDataset
 
 NUM_CLASSES = 21
@@ -29,12 +30,12 @@ def train():
 
     os.makedirs('./model', exist_ok=True)
 
-    model = DeconvNet(21)
+    model = PSPNet(21)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    # seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
-    seg_criterion = nn.CrossEntropyLoss(ignore_index=255)
-    # cls_criterion = nn.BCEWithLogitsLoss()
+    seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
+    # seg_criterion = nn.CrossEntropyLoss(ignore_index=255)
+    cls_criterion = nn.BCEWithLogitsLoss()
 
     cur_iters = 0
 
@@ -46,16 +47,19 @@ def train():
 
         total_loss = 0.
 
-        for idx, (images, hots) in enumerate(dataloader):
+        for idx, (images, hots, exists) in enumerate(dataloader):
             cur_iters += 1
 
             images = images.to(device, dtype=torch.float32).permute(0, 3, 1, 2)
             hots = hots.to(device, dtype=torch.long)
+            exists = exists.to(device, dtype=torch.long)
 
             optimizer.zero_grad()
-            outputs = model(images)
+            outputs, outputs_cls = model(images)
 
-            loss = seg_criterion(outputs, hots)
+            seg_loss = seg_criterion(outputs, hots)
+            cls_loss = cls_criterion(outputs_cls, exists)
+            loss = seg_loss + 0.4 * cls_loss
             loss.backward()
             optimizer.step()
 

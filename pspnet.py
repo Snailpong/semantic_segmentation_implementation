@@ -1,4 +1,5 @@
 import torch
+import torchvision.models as models
 from torch import nn
 from torch.nn import functional as F
 
@@ -8,9 +9,27 @@ class ResNet18(nn.Module):
 
     def __init__(self):
         super(ResNet18, self).__init__()
+        resnet18 = models.resnet18(pretrained=True)
+        self.conv1 = resnet18.conv1
+        self.bn1 = resnet18.bn1
+        self.relu = resnet18.relu
+        self.maxpool = resnet18.maxpool
+
+        self.layer1 = resnet18.layer1
+        self.layer2 = resnet18.layer2
+        self.layer3 = resnet18.layer3
+        self.layer4 = resnet18.layer4
 
     def forward(self, x):
-        return x
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x_aux = self.layer3(x)
+        x = self.layer4(x_aux)
+        return x, x_aux
 
 
 class PSPModule(nn.Module):
@@ -44,7 +63,7 @@ class UpsampleModule(nn.Module):
         
     def forward(self, x):
         x = F.interpolate(x, scale_factor=2, mode='bilinear')
-        x = conv(x)
+        x = self.conv(x)
         return x
 
 
@@ -62,5 +81,6 @@ class PSPNet(nn.Module):
         x = self.pspModule(x)
         x = self.upsample(x)
         x = self.final(x)
+        x_aux = F.adaptive_max_pool2d(x_aux, output_size=(1, 1)).view(-1, x_aux.size(1))
         x_aux = self.classifier(x_aux)
         return x, x_aux

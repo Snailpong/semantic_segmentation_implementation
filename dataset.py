@@ -33,9 +33,8 @@ class VOCSegmentationDataset(DataLoader):
                 continue
 
             self.image_list.append(image_array)
-            seg_original = np.array(Image.open(file_name_seg))
+            seg_original = np.array(Image.open(file_name_seg), dtype=np.int8)
             self.seg_hot_list.append(seg_original)
-            
 
             if idx == 1500:
                 break
@@ -44,7 +43,13 @@ class VOCSegmentationDataset(DataLoader):
         crop = RandomCrop(self.image_list[index].shape[:2], (224, 224))
         image_item = crop.crop_forward(self.image_list[index])
         seg_hot_item = crop.crop_forward(self.seg_hot_list[index])
-        return image_item, seg_hot_item
+
+        exists_item = np.zeros(NUM_CLASSES)
+        for i in range(image_item.shape[0]):
+            for j in range(image_item.shape[1]):
+                exists_item[seg_hot_item[i, j]] = 1
+
+        return image_item, seg_hot_item, exists_item
 
     def __len__(self):
         return 1500
