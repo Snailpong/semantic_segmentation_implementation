@@ -20,6 +20,20 @@ class ResNet18(nn.Module):
         self.layer3 = resnet18.layer3
         self.layer4 = resnet18.layer4
 
+        self.layer3[0].conv1.stride = (1,1)
+        self.layer3[0].downsample[0].stride = (1,1)
+        self.layer3[1].conv1.dilation = (2,2)
+        self.layer3[1].conv1.padding = (2,2)
+        self.layer3[1].conv2.dialation = (2,2)
+        self.layer3[1].conv1.padding = (2,2)
+
+        self.layer4[0].conv1.stride = (1,1)
+        self.layer4[0].downsample[0].stride = (1,1)
+        self.layer4[1].conv1.dilation = (4,4)
+        self.layer4[1].conv1.padding = (4,4)
+        self.layer4[1].conv2.dialation = (4,4)
+        self.layer4[1].conv1.padding = (4,4)
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)

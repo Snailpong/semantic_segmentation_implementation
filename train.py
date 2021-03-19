@@ -31,6 +31,7 @@ def train():
     os.makedirs('./model', exist_ok=True)
 
     model = PSPNet(21)
+    # model = DeconvNet(21)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
@@ -52,14 +53,16 @@ def train():
 
             images = images.to(device, dtype=torch.float32).permute(0, 3, 1, 2)
             hots = hots.to(device, dtype=torch.long)
-            exists = exists.to(device, dtype=torch.long)
+            exists = exists.to(device, dtype=torch.float32)
 
             optimizer.zero_grad()
             outputs, outputs_cls = model(images)
+            # outputs = model(images)
 
             seg_loss = seg_criterion(outputs, hots)
             cls_loss = cls_criterion(outputs_cls, exists)
             loss = seg_loss + 0.4 * cls_loss
+            # loss = seg_loss
             loss.backward()
             optimizer.step()
 
