@@ -29,15 +29,15 @@ class VOCSegmentationDataset(DataLoader):
                 continue
 
             image_array = np.array(Image.open(file_name_jpg)) / 255.0
-            if np.min(image_array.shape[:2]) < 224:
+            if np.min(image_array.shape[:2]) <= 224:
                 continue
 
             self.image_list.append(image_array)
             seg_original = np.array(Image.open(file_name_seg), dtype=np.int)
             self.seg_hot_list.append(seg_original)
 
-            if idx == 1500:
-                break
+            # if idx == 1500:
+            #     break
 
     def __getitem__(self, index):
         crop = RandomCrop(self.image_list[index].shape[:2], (224, 224))
