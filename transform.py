@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+
 class RandomCrop():
     def __init__(self, image_shape, target_shape):
         self.crop0 = random.randrange(image_shape[0]-target_shape[0])

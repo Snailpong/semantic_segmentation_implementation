@@ -8,15 +8,17 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import numpy as np
 
-from deconvnet import DeconvNet
-from fcn import FCN
-from pspnet import PSPNet
 from dataset import VOCSegmentationDataset
+from util import getModel
+
 
 NUM_CLASSES = 21
 BATCH_SIZE = 16
 
-def train():
+
+@click.command()
+@click.option('--model_name', default='pspnet')
+def train(model_name):
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Device: {}'.format(device))
@@ -30,8 +32,7 @@ def train():
 
     os.makedirs('./model', exist_ok=True)
 
-    model = PSPNet(21)
-    # model = DeconvNet(21)
+    model = getModel(model_name, NUM_CLASSES)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
@@ -49,20 +50,21 @@ def train():
         total_loss = 0.
 
         for idx, (images, hots, exists) in enumerate(dataloader):
-            cur_iters += 1
-
             images = images.to(device, dtype=torch.float32).permute(0, 3, 1, 2)
             hots = hots.to(device, dtype=torch.long)
             exists = exists.to(device, dtype=torch.float32)
 
             optimizer.zero_grad()
-            outputs, outputs_cls = model(images)
-            # outputs = model(images)
 
-            seg_loss = seg_criterion(outputs, hots)
-            cls_loss = cls_criterion(outputs_cls, exists)
-            loss = seg_loss + 0.4 * cls_loss
-            # loss = seg_loss
+            if model_name == 'pspnet':
+                outputs, outputs_cls = model(images)
+                seg_loss = seg_criterion(outputs, hots)
+                cls_loss = cls_criterion(outputs_cls, exists)
+                loss = seg_loss + 0.4 * cls_loss
+            else: 
+                output = model(image)
+                loss = seg_criterion(outputs, hots)
+
             loss.backward()
             optimizer.step()
 

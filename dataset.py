@@ -6,6 +6,7 @@ import numpy as np
 from tqdm import tqdm
 from transform import RandomCrop
 
+
 NUM_CLASSES = 21
 
 class VOCSegmentationDataset(DataLoader):

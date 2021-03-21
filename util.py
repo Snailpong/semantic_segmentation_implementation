@@ -1,5 +1,17 @@
 import numpy as np
 
+from deconvnet import DeconvNet
+from fcn import FCN
+from pspnet import PSPNet
+
+
+def getModel(model_name, n_class):
+    assert model_name in ['fcn', 'deconvnet', 'pspnet']
+    if model_name == 'fcn' : return FCN(n_class)
+    elif model_name == 'deconvnet' : return DeconvNet(n_class)
+    else : return PSPNet(n_class)
+
+
 def getColorMap(file):
     colorMap = np.empty((256, 3), dtype=np.int)
     f = open(file, 'r')

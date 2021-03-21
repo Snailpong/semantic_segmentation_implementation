@@ -3,6 +3,7 @@ import torchvision.models as models
 from torch import nn
 from torch.nn import functional as F
 
+
 class ResNet18(nn.Module):
     FEAT = 512
     FEAT_4 = 256
