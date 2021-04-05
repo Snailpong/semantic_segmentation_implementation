@@ -46,10 +46,11 @@ class VOCSegmentationDataset(DataLoader):
         seg_hot_item = crop.crop_forward(self.seg_hot_list[index])
 
         exists_item = np.zeros(NUM_CLASSES)
-        for i in range(image_item.shape[0]):
-            for j in range(image_item.shape[1]):
-                if 0 <= seg_hot_item[i, j] < NUM_CLASSES:
-                    exists_item[seg_hot_item[i, j]] = 1 
+        print(seg_hot_item.max())
+        for i in range(NUM_CLASSES):
+            if np.any(image_item == i):
+                exists_item[i] = 1
+                    
 
         return image_item, seg_hot_item, exists_item
 

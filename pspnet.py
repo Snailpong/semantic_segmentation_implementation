@@ -88,7 +88,7 @@ class PSPNet(nn.Module):
         self.bottleneck = ResNet18()
         self.pspModule = PSPModule()
         self.upsample = nn.Sequential(UpsampleModule(ResNet18.FEAT, 256), UpsampleModule(256, 64), UpsampleModule(64, 64))
-        self.final = nn.Sequential(nn.Conv2d(64, n_class, 1), nn.LogSoftmax())
+        self.final = nn.Conv2d(64, n_class, 1)
         self.classifier = nn.Sequential(nn.Linear(ResNet18.FEAT_4, 256), nn.ReLU(), nn.Linear(256, n_class))
 
     def forward(self, x):

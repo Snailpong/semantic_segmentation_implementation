@@ -35,13 +35,12 @@ def train(model_name):
     model = getModel(model_name, NUM_CLASSES)
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    seg_criterion = nn.NLLLoss(ignore_index=255, reduction='mean')
-    # seg_criterion = nn.CrossEntropyLoss(ignore_index=255)
+    seg_criterion = nn.CrossEntropyLoss(ignore_index=255)
     cls_criterion = nn.BCEWithLogitsLoss()
 
     cur_iters = 0
 
-    for epoch in range(3000):
+    for epoch in range(300):
         model.train()
 
         pbar = tqdm(range(len(dataloader)))
@@ -62,7 +61,7 @@ def train(model_name):
                 cls_loss = cls_criterion(outputs_cls, exists)
                 loss = seg_loss + 0.4 * cls_loss
             else: 
-                output = model(image)
+                output = model(images)
                 loss = seg_criterion(outputs, hots)
 
             loss.backward()
