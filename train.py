@@ -63,7 +63,7 @@ def train(model_name):
                 cls_loss = cls_criterion(outputs_cls, exists)
                 loss = seg_loss + 0.4 * cls_loss
             else: 
-                output = model(images)
+                outputs = model(images)
                 loss = seg_criterion(outputs, hots)
 
             loss.backward()
