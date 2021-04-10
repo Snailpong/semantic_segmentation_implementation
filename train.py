@@ -42,7 +42,7 @@ def train(model_name):
 
     cur_iters = 0
 
-    for epoch in range(300):
+    for epoch in range(50):
         model.train()
 
         pbar = tqdm(range(len(dataloader)))
